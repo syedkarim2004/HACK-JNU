@@ -1,11 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import WelcomeCard from './WelcomeCard'
-import FileCard from './FileCard'
-import MeetingCard from './MeetingCard'
-import TaskCard from './TaskCard'
 import ChatInput from './ChatInput'
-import { FiCalendar, FiFileText } from 'react-icons/fi'
 
 const MainContent = ({ sidebarCollapsed }) => {
   const [showContent, setShowContent] = useState(true)
@@ -17,102 +13,110 @@ const MainContent = ({ sidebarCollapsed }) => {
       setShowContent(false)
       // Add message to chat
       setChatMessages([...chatMessages, { text: message, sender: 'user', attachments }])
+      
+      // Simulate AI response
+      setTimeout(() => {
+        setChatMessages(prev => [...prev, { 
+          text: 'I understand you need help with compliance. Let me assist you with that.', 
+          sender: 'ai' 
+        }])
+      }, 1000)
+    }
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 12
+      }
     }
   }
 
   return (
-    <div className="flex-1 overflow-y-auto scroll-smooth bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative pb-24">
-      <div className="max-w-7xl mx-auto p-6">
+    <div className="flex-1 h-[calc(100vh-4rem)] bg-white dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 relative pb-12">
+      <div className="max-w-7xl mx-auto px-6 pt-6 pb-4 h-full">
         <AnimatePresence mode="wait">
           {showContent ? (
             <motion.div
               key="content"
-              initial={{ opacity: 1 }}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
               exit={{ 
                 opacity: 0,
                 transition: { 
-                  duration: 0.8,
-                  staggerChildren: 0.1,
-                  delayChildren: 0.1
+                  duration: 0.3,
+                  staggerChildren: 0.05,
+                  staggerDirection: -1
                 }
               }}
             >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30, scale: 0.95 }}
-                transition={{ duration: 0.5 }}
-              >
+              <motion.div variants={itemVariants}>
                 <WelcomeCard />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30, scale: 0.95 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="mt-6"
-              >
-                <FileCard />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30, scale: 0.95 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6"
-              >
-                <MeetingCard />
-                <TaskCard 
-                  title="Generate Compliance Calendar"
-                  description="Get your personalized daily/monthly compliance schedule"
-                  icon={FiCalendar}
-                />
-                <TaskCard 
-                  title="Auto-fill GST Form"
-                  description="Use AI to fill forms using your existing business data"
-                  icon={FiFileText}
-                />
               </motion.div>
 
             </motion.div>
           ) : (
             <motion.div
               key="chat"
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
               className="flex flex-col pb-20 pt-6"
             >
-              <div className="space-y-4">
+              <div className="space-y-4 max-w-4xl mx-auto w-full">
                 {chatMessages.map((msg, idx) => (
                   <motion.div
                     key={idx}
-                    initial={{ opacity: 0, x: msg.sender === 'user' ? 20 : -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className={`p-4 rounded-lg glass ${
-                      msg.sender === 'user'
-                        ? 'bg-blue-500/20 border border-blue-500/30 ml-auto max-w-md'
-                        : 'bg-gray-700/20 border border-gray-600/30 max-w-md'
-                    }`}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      delay: idx * 0.1,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 20
+                    }}
+                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    {msg.text && <p className="text-gray-800 dark:text-white text-sm mb-2">{msg.text}</p>}
-                    {msg.attachments && msg.attachments.length > 0 && (
-                      <div className="space-y-2">
-                        {msg.attachments.map((att, attIdx) => (
-                          <div key={attIdx} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                            {att.preview ? (
-                              <img src={att.preview} alt={att.name} className="w-8 h-8 rounded object-cover" />
-                            ) : (
-                              <span>📄</span>
-                            )}
-                            <span>{att.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className={`max-w-md px-4 py-3 rounded-2xl cursor-pointer ${
+                        msg.sender === 'user'
+                          ? 'bg-blue-500 text-white rounded-br-sm'
+                          : 'bg-gray-100 text-gray-900 rounded-bl-sm dark:bg-gray-800 dark:text-gray-100'
+                      }`}>
+                      {msg.text && <p className="text-sm leading-relaxed">{msg.text}</p>}
+                      {msg.attachments && msg.attachments.length > 0 && (
+                        <div className="space-y-2 mt-2">
+                          {msg.attachments.map((att, attIdx) => (
+                            <div key={attIdx} className="flex items-center gap-2 text-xs opacity-90">
+                              {att.preview ? (
+                                <img src={att.preview} alt={att.name} className="w-8 h-8 rounded object-cover" />
+                              ) : (
+                                <span>📄</span>
+                              )}
+                              <span>{att.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
                   </motion.div>
                 ))}
               </div>

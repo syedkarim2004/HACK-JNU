@@ -1,33 +1,54 @@
 import { motion } from 'framer-motion'
-import { FiStar, FiCalendar } from 'react-icons/fi'
+import { FiStar } from 'react-icons/fi'
 
 const MeetingCard = () => {
   return (
     <motion.div
-      whileHover={{ scale: 1.02, y: -4 }}
-      className="p-6 rounded-xl glass border border-white/20 dark:border-gray-700/50 bg-white/30 dark:bg-gray-800/30 cursor-pointer"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="p-5 rounded-xl bg-white dark:bg-slate-900/70 border border-gray-200 dark:border-slate-700 shadow-sm dark:shadow-[0_18px_45px_rgba(15,23,42,0.65)] hover:shadow-lg cursor-pointer"
     >
       <div className="flex items-center gap-2 mb-4">
-        <FiStar className="text-yellow-500" size={18} />
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-          Upcoming Compliance Deadline
+        <motion.div
+          animate={{ rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+        >
+          <FiStar className="text-yellow-500" size={18} />
+        </motion.div>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-100">
+          Summarize your last meeting
         </h3>
       </div>
       
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
-          <span className="text-white text-sm font-medium">⚠️</span>
-        </div>
+        <motion.div 
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-medium shadow-md"
+        >
+          👤
+        </motion.div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-800 dark:text-white">
-            GST Return Filing - GSTR-3B
-          </p>
-          <div className="flex items-center gap-2 mt-1">
-            <FiCalendar className="text-gray-500 dark:text-gray-400" size={14} />
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Due: 20 Apr 2025 (3 days left)
+          <motion.div 
+            whileHover={{ x: 2 }}
+            className="flex items-center gap-2"
+          >
+            <motion.span 
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
+              className="text-lg"
+            >
+              📅
+            </motion.span>
+            <p className="text-sm font-semibold text-gray-800 dark:text-slate-100">
+              UX Strategy Meet up
             </p>
-          </div>
+          </motion.div>
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+            1 Apr 2025, 14:00 pm
+          </p>
         </div>
       </div>
     </motion.div>

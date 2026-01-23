@@ -105,8 +105,8 @@ const ChatInput = ({ onSubmit, sidebarCollapsed }) => {
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="fixed bottom-6 z-10"
+        transition={{ duration: 0.3 }}
+        className="fixed bottom-3 z-10"
         style={{ left: `calc(${leftMargin} + 1.5rem)`, right: '1.5rem' }}
       >
         <form onSubmit={handleSubmit} className="relative">
@@ -120,20 +120,20 @@ const ChatInput = ({ onSubmit, sidebarCollapsed }) => {
               {attachments.map((attachment, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass border border-gray-200/30 dark:border-gray-700/50 bg-white/30 dark:bg-gray-800/30"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-gray-200 shadow-sm dark:bg-slate-900 dark:border-slate-700"
                 >
                   {attachment.preview ? (
                     <img src={attachment.preview} alt={attachment.name} className="w-6 h-6 rounded object-cover" />
                   ) : (
-                    <FiFile className="text-gray-600 dark:text-gray-400" size={16} />
+                    <FiFile className="text-gray-600" size={16} />
                   )}
-                  <span className="text-xs text-gray-700 dark:text-gray-300 max-w-[100px] truncate">
+                  <span className="text-xs text-gray-700 dark:text-slate-200 max-w-[100px] truncate">
                     {attachment.name}
                   </span>
                   <button
                     type="button"
                     onClick={() => removeAttachment(idx)}
-                    className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                    className="text-gray-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors"
                   >
                     <FiX size={14} />
                   </button>
@@ -142,42 +142,54 @@ const ChatInput = ({ onSubmit, sidebarCollapsed }) => {
             </motion.div>
           )}
 
-          <div className="glass border border-gray-200/30 dark:border-gray-700/50 bg-white/30 dark:bg-gray-800/30 rounded-2xl p-4 shadow-lg">
-            <div className="flex items-center gap-3">
-              <button
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="bg-white border border-gray-200 rounded-2xl p-2.5 shadow-lg dark:bg-slate-900/95 dark:border-slate-700 dark:shadow-[0_18px_45px_rgba(15,23,42,0.85)]"
+          >
+            <div className="flex items-center gap-2">
+              <motion.button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="p-2 rounded-lg glass border border-purple-300/30 dark:border-purple-600/30 bg-purple-500/20 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 hover:bg-purple-500/30 transition-colors"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
               >
                 <FiPlus size={20} />
-              </button>
+              </motion.button>
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Ask about compliance requirements, e.g., 'Small Textile Factory in Surat' or 'What forms do I need to file this month?'"
-                className="flex-1 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 text-sm"
+                placeholder="Ask about compliance requirements..."
+                className="flex-1 bg-transparent border-none outline-none text-gray-700 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 text-sm focus:placeholder-gray-300 dark:focus:placeholder-slate-400 transition-all"
               />
-              <button
+              <motion.button
                 type="button"
                 onClick={handleVoiceRecord}
-                className={`p-2 rounded-lg glass border transition-colors ${
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                animate={isRecording ? { scale: [1, 1.1, 1] } : {}}
+                transition={{ duration: 0.5, repeat: isRecording ? Infinity : 0 }}
+                className={`p-2 rounded-lg transition-colors ${
                   isRecording
-                    ? 'border-red-300/30 dark:border-red-600/30 bg-red-500/20 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-500/30 animate-pulse'
-                    : 'border-gray-300/30 dark:border-gray-600/30 bg-gray-100/20 dark:bg-gray-700/20 text-gray-600 dark:text-gray-400 hover:bg-gray-200/30 dark:hover:bg-gray-600/30'
+                    ? 'bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400'
+                    : 'hover:bg-gray-100 text-gray-600 dark:text-slate-300 dark:hover:bg-slate-800'
                 }`}
                 title={isRecording ? 'Stop recording' : 'Start voice recording'}
               >
                 <FiMic size={20} />
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="submit"
-                className="p-2 rounded-lg glass border border-gray-300/30 dark:border-gray-600/30 bg-gray-100/20 dark:bg-gray-700/20 text-gray-600 dark:text-gray-400 hover:bg-gray-200/30 dark:hover:bg-gray-600/30 transition-colors"
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 dark:bg-indigo-500 dark:hover:bg-indigo-400 transition-colors shadow-md shadow-blue-500/40"
               >
                 <FiSend size={20} />
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         </form>
       </motion.div>
     </>
