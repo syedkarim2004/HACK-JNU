@@ -1,44 +1,79 @@
-import { motion } from 'framer-motion'
-import { FiFile, FiMoreVertical } from 'react-icons/fi'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FiFile, FiChevronDown, FiChevronUp } from 'react-icons/fi'
 
 const FileCard = () => {
+  const [isExpanded, setIsExpanded] = useState(false)
   const files = [
-    { name: 'GST Return - GSTR-3B (March 2025).pdf', type: 'gst', colorClass: 'bg-yellow-100 dark:bg-yellow-900/30', iconClass: 'text-yellow-600 dark:text-yellow-400' },
-    { name: 'MSME Registration Certificate.pdf', type: 'msme', colorClass: 'bg-purple-100 dark:bg-purple-900/30', iconClass: 'text-purple-600 dark:text-purple-400' },
-    { name: 'TDS Compliance Form - Q4 2024.pdf', type: 'tds', colorClass: 'bg-red-100 dark:bg-red-900/30', iconClass: 'text-red-600 dark:text-red-400' },
+    { name: 'Miro - Product Analytics and Statistics', icon: '📊', color: 'bg-purple-100' },
+    { name: 'Figma - UX Research', icon: '🎨', color: 'bg-pink-100' },
+    { name: 'R2 Strategic Goals & Objectives.pdf', icon: '📄', color: 'bg-red-100' },
   ]
 
+  const visibleFiles = isExpanded ? files : files.slice(0, 2)
+
   return (
-    <div className="p-6 rounded-xl glass border border-yellow-200/30 dark:border-yellow-500/30 bg-gradient-to-br from-yellow-50/50 to-orange-50/50 dark:from-yellow-900/20 dark:to-orange-900/20">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="p-5 rounded-xl bg-white dark:bg-slate-900/70 border border-gray-200 dark:border-slate-700 shadow-sm dark:shadow-[0_18px_45px_rgba(15,23,42,0.65)] hover:shadow-lg cursor-pointer"
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <FiFile className="text-yellow-600 dark:text-yellow-400" size={20} />
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <motion.div
+            animate={{ rotate: isExpanded ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FiFile className="text-gray-600 dark:text-slate-300" size={18} />
+          </motion.div>
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-100">
             Previously viewed files
           </h3>
         </div>
-        <button className="p-1 rounded hover:bg-white/20 text-gray-600 dark:text-gray-400">
-          <FiMoreVertical size={18} />
-        </button>
+        {files.length > 2 && (
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200"
+          >
+            {isExpanded ? <FiChevronUp size={18} /> : <FiChevronDown size={18} />}
+          </motion.button>
+        )}
       </div>
       
-      <div className="space-y-3">
-        {files.map((file, idx) => (
-          <motion.div
-            key={idx}
-            whileHover={{ scale: 1.02, x: 4 }}
-            className="p-3 rounded-lg glass border border-white/20 dark:border-gray-700/50 bg-white/30 dark:bg-gray-800/30 cursor-pointer"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded flex items-center justify-center ${file.colorClass}`}>
-                <FiFile className={file.iconClass} size={16} />
-              </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 flex-1">{file.name}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={isExpanded ? 'expanded' : 'collapsed'}
+          initial={{ height: 'auto' }}
+          animate={{ height: 'auto' }}
+          exit={{ height: 'auto' }}
+          className="space-y-2.5"
+        >
+          {visibleFiles.map((file, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              whileHover={{ x: 4, scale: 1.01 }}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800/80 transition-colors"
+            >
+              <motion.div 
+                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                transition={{ duration: 0.5 }}
+                className={`w-8 h-8 rounded flex items-center justify-center ${file.color} text-lg`}
+              >
+                {file.icon}
+              </motion.div>
+              <p className="text-sm text-gray-800 dark:text-slate-100 flex-1">{file.name}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
   )
 }
 

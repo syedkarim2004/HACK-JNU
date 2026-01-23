@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
 import TopBar from './components/TopBar'
-import ProfileModal from './components/ProfileModal'
+import ProfilePage from './components/ProfilePage'
 
 function App() {
   const [isDark, setIsDark] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [activePage, setActivePage] = useState('home')
+
   const [userProfile, setUserProfile] = useState({
     businessOwnerName: 'Rajesh Kumar',
     businessName: 'Kumar Textiles Pvt. Ltd.',
@@ -31,14 +32,7 @@ function App() {
   }, [isDark])
 
   const handleViewProfile = () => {
-    setShowProfileModal(true)
-  }
-
-  const handleSignOut = () => {
-    if (window.confirm('Are you sure you want to sign out?')) {
-      // Handle sign out logic here
-      console.log('User signed out')
-    }
+    setActivePage('profile')
   }
 
   const handleSaveProfile = (updatedProfile) => {
@@ -48,26 +42,27 @@ function App() {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${isDark ? 'dark bg-slate-950' : 'bg-slate-50'}`}>
       <div className="flex h-screen overflow-hidden">
         <Sidebar 
           collapsed={sidebarCollapsed} 
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
           onViewProfile={handleViewProfile}
-          onSignOut={handleSignOut}
         />
         <div className="flex-1 flex flex-col overflow-hidden">
           <TopBar isDark={isDark} onThemeToggle={() => setIsDark(!isDark)} />
-          <MainContent sidebarCollapsed={sidebarCollapsed} />
+          {activePage === 'home' && (
+            <MainContent sidebarCollapsed={sidebarCollapsed} />
+          )}
+          {activePage === 'profile' && (
+            <ProfilePage 
+              userProfile={userProfile}
+              onSave={handleSaveProfile}
+              onBack={() => setActivePage('home')}
+            />
+          )}
         </div>
       </div>
-      
-      <ProfileModal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-        userProfile={userProfile}
-        onSave={handleSaveProfile}
-      />
     </div>
   )
 }
