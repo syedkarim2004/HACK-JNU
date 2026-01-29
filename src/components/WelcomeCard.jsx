@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import { useAppContext } from '../context/AppContext'
+import { useNavigate } from 'react-router-dom'
 
 const featureCards = [
   {
@@ -9,6 +11,8 @@ const featureCards = [
     iconBg: 'bg-orange-100',
     iconBorder: 'border-orange-200',
     icon: '📋',
+    intent: 'NEW_BUSINESS',
+    route: '/chat'
   },
   {
     title: 'Compliance Planner',
@@ -18,6 +22,8 @@ const featureCards = [
     iconBg: 'bg-sky-100',
     iconBorder: 'border-sky-200',
     icon: '📅',
+    intent: 'COMPLIANCE_CALENDAR',
+    route: '/dashboard'
   },
   {
     title: 'Platform Onboarding',
@@ -27,10 +33,24 @@ const featureCards = [
     iconBg: 'bg-emerald-100',
     iconBorder: 'border-emerald-200',
     icon: '🚀',
+    intent: 'PLATFORM_ONBOARDING',
+    route: '/platforms'
   },
 ]
 
 const WelcomeCard = () => {
+  const { INTENTS, setIntentAndNavigate } = useAppContext()
+  const navigate = useNavigate()
+
+  const handleCardClick = (card) => {
+    // Set the user intent in context
+    setIntentAndNavigate(INTENTS[card.intent])
+    
+    // Navigate to the appropriate route
+    navigate(card.route)
+    
+    console.log(`Clicked: ${card.title}, Intent: ${card.intent}, Route: ${card.route}`)
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -94,8 +114,10 @@ const WelcomeCard = () => {
               <motion.div
                 key={card.title}
                 whileHover={{ y: -6, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
                 transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                className="relative rounded-2xl bg-white/95 dark:bg-slate-950/80 border border-slate-100/80 dark:border-slate-800 shadow-sm hover:shadow-xl px-5 py-4 flex flex-col gap-3 text-left h-full justify-between"
+                onClick={() => handleCardClick(card)}
+                className="relative rounded-2xl bg-white/95 dark:bg-slate-950/80 border border-slate-100/80 dark:border-slate-800 shadow-sm hover:shadow-xl px-5 py-4 flex flex-col gap-3 text-left h-full justify-between cursor-pointer group"
               >
                 <div className="flex flex-col gap-4">
                   <div
@@ -113,8 +135,8 @@ const WelcomeCard = () => {
                   </div>
                 </div>
 
-                <span className={`text-xs font-bold uppercase tracking-wide ${card.accentColor}`}>
-                  {card.accent}
+                <span className={`text-xs font-bold uppercase tracking-wide ${card.accentColor} group-hover:scale-105 transition-transform`}>
+                  {card.accent} →
                 </span>
               </motion.div>
             ))}

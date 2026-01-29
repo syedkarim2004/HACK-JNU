@@ -35,7 +35,7 @@ class ChatService {
   }
 
   // Send message via HTTP API (fallback)
-  async sendMessage(message, userProfile, sessionId = null) {
+  async sendMessage(message, userProfile, sessionId = null, userIntent = null, chatId = null) {
     try {
       const response = await fetch(`${this.baseURL}/api/chat/message`, {
         method: 'POST',
@@ -45,7 +45,9 @@ class ChatService {
         body: JSON.stringify({
           message,
           userProfile,
-          sessionId: sessionId || this.sessionId
+          sessionId: sessionId || this.sessionId,
+          userIntent, // Include user intent in API call
+          chatId: chatId || this.chatId || `chat_${Date.now()}` // Generate chatId if not provided
         })
       });
 
@@ -55,6 +57,7 @@ class ChatService {
 
       const data = await response.json();
       this.sessionId = data.sessionId;
+      this.chatId = data.chatId; // Store chatId for future messages
       return data;
 
     } catch (error) {
@@ -64,7 +67,7 @@ class ChatService {
   }
 
   // Send message via Socket.IO (real-time)
-  sendMessageRealtime(message, userProfile) {
+  sendMessageRealtime(message, userProfile, userIntent = null, chatId = null) {
     if (!this.socket || !this.isConnected) {
       throw new Error('Socket not connected. Using fallback method.');
     }
@@ -72,7 +75,9 @@ class ChatService {
     this.socket.emit('chat-message', {
       sessionId: this.sessionId,
       message,
-      userProfile
+      userProfile,
+      userIntent, // Include user intent in real-time calls
+      chatId: chatId || this.chatId || `chat_${Date.now()}` // Include chatId
     });
   }
 

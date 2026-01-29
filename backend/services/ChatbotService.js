@@ -24,26 +24,38 @@ export class ChatbotService {
     };
   }
 
-  async processMessage(message, userProfile, sessionId) {
+  async processMessage(message, userProfile, sessionId, memoryContext = {}) {
     // Get or create session
     let session = this.sessions.get(sessionId);
     if (!session) {
       session = this.createSession(sessionId, userProfile);
     }
 
-    // Add message to history
+    // Add message to history (legacy session storage - keeping for compatibility)
     session.messages.push({
       role: 'user',
       content: message,
       timestamp: new Date()
     });
 
-    // Use Agent Orchestrator for intelligent processing
+    // MEMORY INTEGRATION: Pass conversation context to orchestrator
+    console.log('🧠 Processing message with conversation memory...');
+    if (memoryContext.conversationHistory && memoryContext.conversationHistory.length > 0) {
+      console.log(`📚 Using ${memoryContext.conversationHistory.length} previous messages as context`);
+    }
+
+    // Use Agent Orchestrator for intelligent processing with memory context
     console.log('🎯 Using Agent Orchestrator for intelligent routing...');
     const response = await this.orchestrator.processMessage(message, {
       businessProfile: session.businessProfile,
       conversationHistory: session.messages,
-      currentPhase: session.currentPhase
+      currentPhase: session.currentPhase,
+      
+      // NEW: Memory context from ChatMemoryStore
+      memoryContext: memoryContext.conversationHistory || [],
+      conversationContext: memoryContext.conversationContext || '',
+      userIntent: memoryContext.userIntent || null,
+      chatId: memoryContext.chatId || null
     });
 
     // Update session with response data

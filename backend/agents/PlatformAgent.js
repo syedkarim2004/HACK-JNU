@@ -48,7 +48,7 @@ export class PlatformAgent {
   async process(message, context, session) {
     console.log('🛒 PlatformAgent: Processing platform query');
     
-    const businessProfile = session.businessProfile || {};
+    const businessProfile = (session || {}).businessProfile || {};
     const detectedPlatforms = this.detectPlatforms(message);
     
     const systemPrompt = `You are a platform integration expert helping MSME businesses get listed on major Indian platforms like Swiggy, Zomato, Amazon, and Flipkart.

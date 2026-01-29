@@ -15,7 +15,7 @@ export class DiscoveryAgent {
   async process(message, context, session) {
     console.log('🔍 DiscoveryAgent: Processing message');
     
-    const businessProfile = session.businessProfile || {};
+    const businessProfile = (session || {}).businessProfile || {};
     
     // Create context from datasets
     const statesInfo = INDIAN_STATES_DATA.states.map(state => 
@@ -24,43 +24,43 @@ export class DiscoveryAgent {
 
     const complianceTypes = Object.keys(COMPLIANCE_DATABASE.central).join(', ');
     
-    const systemPrompt = `You are a business discovery agent helping users start their MSME business in India. Use the provided datasets to give accurate, helpful responses.
+    const systemPrompt = `You are a business discovery agent for Indian MSME compliance. Be concise and focused.
 
-Available Indian States and Business Types:
-${statesInfo}
+Available States: ${statesInfo}
 
-Available Compliance Types: ${complianceTypes}
-
-Current Business Profile: ${JSON.stringify(businessProfile, null, 2)}
+Current Profile: ${JSON.stringify(businessProfile, null, 2)}
 
 Guidelines:
-- Ask one question at a time for better user experience
-- Use bullet points for options and clarity
-- Be encouraging and supportive
-- Reference real data from datasets
-- Keep responses under 200 words
-- Use emojis for better engagement`;
+- Ask ONE question at a time
+- Be brief and direct
+- Use bullet points for options
+- Keep responses under 100 words
+- Focus on missing information only`;
 
-    const userPrompt = `User said: "${message}"
+    // Build enhanced prompt with conversation context
+    let userPrompt = `User said: "${message}"`;
+    
+    // Add conversation context for continuity (NEW MEMORY FEATURE)
+    if (context.conversationContext && context.conversationContext !== 'This is the start of a new conversation.') {
+      userPrompt = `${context.conversationContext}\n\nUser said: "${message}"`;
+    }
 
-Based on their current business profile, what should I ask next or how should I respond? 
+    userPrompt += `
 
-If they haven't provided:
-1. Business type - Ask what type of business they want to start
-2. Location - Ask which city/state in India
-3. Scale - Ask about business size/scale
-4. Investment - Ask about budget range
-5. Timeline - Ask about when they want to start
+What specific information do you need next? Ask ONE focused question about:
+1. Business type (if missing)
+2. Location/state (if missing) 
+3. Scale/size (if missing)
+4. Investment amount (if missing)
+5. Timeline (if missing)
 
-If they've provided all details, summarize their profile and suggest next steps.
-
-Provide a helpful, encouraging response with specific options based on the datasets.`;
+If all info provided, say "Profile complete" and suggest next steps.`;
 
     try {
       const response = await this.ollamaService.generateResponse(
         userPrompt,
         systemPrompt,
-        { temperature: 0.7 }
+        { temperature: 0.3 }
       );
 
       // Update business profile based on user input
@@ -72,7 +72,11 @@ Provide a helpful, encouraging response with specific options based on the datas
         agent: this.name,
         data: {
           businessProfile,
-          step: this.determineNextStep(businessProfile)
+          step: this.determineNextStep(businessProfile),
+          // NEW: Memory context indicators
+          memoryEnabled: true,
+          conversationLength: context.memoryContext?.length || 0,
+          hasConversationHistory: !!(context.conversationContext && context.conversationContext !== 'This is the start of a new conversation.')
         }
       };
 
