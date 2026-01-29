@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom'
+import { useAppContext } from './context/AppContext'
+import { ChatContextProvider } from './context/ChatContext'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
 import TopBar from './components/TopBar'
 import ProfilePage from './components/ProfilePage'
+import Profile from './components/Profile'
 import Dashboard from './components/Dashboard'
+import PlatformOnboarding from './components/PlatformOnboarding'
+import Home from './components/Home'
+import ChatSidebar from './components/ChatSidebar'
+import ChatGPTInterface from './components/ChatGPTInterface'
 
 function App() {
+  const { sessionId, setSessionId } = useAppContext()
+  const navigate = useNavigate()
+  
   const [isDark, setIsDark] = useState(() => {
     // Check if user has a saved theme preference, default to dark if not found
     const savedTheme = localStorage.getItem('theme')
@@ -13,7 +24,6 @@ function App() {
   })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activePage, setActivePage] = useState('home')
-  const [sessionId, setSessionId] = useState(null) // Add session tracking
   
   const [googleUser, setGoogleUser] = useState(null)
 
@@ -67,7 +77,18 @@ function App() {
   }
 
   const handleViewProfile = () => {
-    setActivePage('profile')
+    navigate('/profile')
+  }
+
+  const handleNavigate = (page) => {
+    if (page === 'home') {
+      navigate('/')
+    } else if (page === 'dashboard') {
+      navigate('/dashboard')
+    } else if (page === 'chat') {
+      navigate('/chat')
+    }
+    setActivePage(page)
   }
 
   const handleSaveProfile = (updatedProfile) => {
@@ -83,8 +104,8 @@ function App() {
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
           onViewProfile={handleViewProfile}
           googleUser={googleUser} 
-          onNavigate={setActivePage} // UPDATED: Pass navigation handler
-          activePage={activePage}    // Optional: Pass active state to highlight button
+          onNavigate={handleNavigate} // UPDATED: Pass navigation handler
+          activePage={activePage}     // Optional: Pass active state to highlight button
         />
         <div className="flex-1 flex flex-col overflow-hidden">
           <TopBar 
@@ -95,33 +116,71 @@ function App() {
             onLogout={handleLogout}
           />
           
-          {activePage === 'home' && (
-            <MainContent 
-              sidebarCollapsed={sidebarCollapsed} 
-              userProfile={userProfile} 
-              onSessionUpdate={setSessionId}
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <Home 
+                  sidebarCollapsed={sidebarCollapsed} 
+                  userProfile={userProfile} 
+                  onSessionUpdate={setSessionId}
+                />
+              } 
             />
-          )}
-          {activePage === 'dashboard' && (
-            <Dashboard 
-              userProfile={userProfile} 
-              sessionId={sessionId}
+            <Route 
+              path="/chat" 
+              element={
+                <ChatContextProvider>
+                  <div className="relative h-screen overflow-hidden">
+                    <ChatSidebar />
+                    <ChatGPTInterface userProfile={userProfile} />
+                  </div>
+                </ChatContextProvider>
+              } 
             />
-          )}
-          {activePage === 'chat' && (
-            <MainContent 
-              sidebarCollapsed={sidebarCollapsed} 
-              userProfile={userProfile} 
-              onSessionUpdate={setSessionId}
+            <Route 
+              path="/old-chat" 
+              element={
+                <MainContent 
+                  sidebarCollapsed={sidebarCollapsed} 
+                  userProfile={userProfile} 
+                  onSessionUpdate={setSessionId}
+                />
+              } 
             />
-          )}
-          {activePage === 'profile' && (
-            <ProfilePage 
-              userProfile={userProfile}
-              onSave={handleSaveProfile}
-              onBack={() => setActivePage('home')}
+            <Route 
+              path="/dashboard" 
+              element={
+                <Dashboard 
+                  userProfile={userProfile} 
+                  sessionId={sessionId}
+                />
+              } 
             />
-          )}
+            <Route 
+              path="/platforms" 
+              element={<PlatformOnboarding />} 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <Profile 
+                  googleUser={googleUser}
+                  userProfile={userProfile}
+                />
+              } 
+            />
+            <Route 
+              path="/profile-old" 
+              element={
+                <ProfilePage 
+                  userProfile={userProfile}
+                  onSave={handleSaveProfile}
+                  onBack={() => navigate('/')}
+                />
+              } 
+            />
+          </Routes>
         </div>
       </div>
     </div>

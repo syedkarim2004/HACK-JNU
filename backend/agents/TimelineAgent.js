@@ -14,7 +14,7 @@ export class TimelineAgent {
   async process(message, context, session) {
     console.log('⏰ TimelineAgent: Processing timeline query');
     
-    const businessProfile = session.businessProfile || {};
+    const businessProfile = (session || {}).businessProfile || {};
     
     // Get compliance timelines from dataset
     const complianceTimelines = this.getComplianceTimelines(businessProfile);

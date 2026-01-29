@@ -10,6 +10,7 @@ import { dirname, join } from 'path';
 
 // Import routes
 import chatRoutes from './routes/chat.js';
+import chatHistoryRoutes from './routes/chatHistory.js';
 import complianceRoutes from './routes/compliance.js';
 import userRoutes from './routes/user.js';
 import stateRoutes from './routes/states.js';
@@ -92,6 +93,7 @@ app.set('orchestrator', chatbotService.orchestrator);
 
 // Routes
 app.use('/api/chat', chatRoutes);
+app.use('/api', chatHistoryRoutes); // Chat history routes (/api/chats, /api/chat-stats)
 app.use('/api/compliance', complianceRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/states', stateRoutes);

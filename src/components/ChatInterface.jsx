@@ -1,18 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUser, FiBot, FiLoader, FiAlertCircle, FiCheckCircle, FiClock, FiInfo } from 'react-icons/fi';
+import { FiUser, FiMessageCircle, FiLoader, FiAlertCircle, FiCheckCircle, FiClock, FiInfo } from 'react-icons/fi';
 import chatService from '../services/chatService';
+import { useAppContext } from '../context/AppContext';
 import EnhancedChatInput from './EnhancedChatInput';
 
 const ChatInterface = ({ userProfile, sessionId, onSessionUpdate }) => {
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [currentPhase, setCurrentPhase] = useState('discovery');
-  const [businessProfile, setBusinessProfile] = useState({});
-  const [typingMessage, setTypingMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef(null);
+  const { userIntent } = useAppContext()
+  const [messages, setMessages] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [currentPhase, setCurrentPhase] = useState('discovery')
+  const [businessProfile, setBusinessProfile] = useState({})
+  const [typingMessage, setTypingMessage] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const messagesEndRef = useRef(null)
 
   // Initialize with a conversational welcome flow
   useEffect(() => {
@@ -163,9 +165,9 @@ What type of business are you planning to start?`,
     try {
       // Try real-time first, fallback to HTTP
       if (chatService.isConnected) {
-        chatService.sendMessageRealtime(message, userProfile);
+        chatService.sendMessageRealtime(message, userProfile, userIntent, chatService.chatId);
       } else {
-        const response = await chatService.sendMessage(message, userProfile, sessionId);
+        const response = await chatService.sendMessage(message, userProfile, sessionId, userIntent, chatService.chatId);
         
         setIsLoading(false);
         
@@ -215,7 +217,7 @@ What type of business are you planning to start?`,
               ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
               : 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white'
           }`}>
-            {isUser ? <FiUser size={18} /> : <FiBot size={18} />}
+            {isUser ? <FiUser size={18} /> : <FiMessageCircle size={18} />}
           </div>
 
           {/* Message Content */}
@@ -481,13 +483,20 @@ What type of business are you planning to start?`,
 
   return (
     <div className="flex flex-col h-full">
-      {/* Phase Indicator */}
+      {/* Intent & Phase Indicator */}
       <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 border-b border-gray-200 dark:border-slate-600">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
-            {currentPhase.replace('_', ' ')} Phase
-          </span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
+              {currentPhase.replace('_', ' ')} Phase
+            </span>
+          </div>
+          {userIntent && (
+            <div className="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full">
+              Focus: {userIntent.replace('_', ' ')}
+            </div>
+          )}
         </div>
       </div>
 
@@ -506,7 +515,7 @@ What type of business are you planning to start?`,
             >
               <div className="flex items-start gap-3 max-w-[85%]">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md">
-                  <FiBot size={18} />
+                  <FiMessageCircle size={18} />
                 </div>
                 <div className="bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-md px-5 py-4 shadow-lg border border-gray-100 dark:border-slate-700 relative">
                   <div className="leading-relaxed">
@@ -531,7 +540,7 @@ What type of business are you planning to start?`,
           >
             <div className="flex items-center gap-3">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
-                <FiBot size={18} className="text-white" />
+                <FiMessageCircle size={18} className="text-white" />
               </div>
               <div className="bg-white dark:bg-slate-800 rounded-2xl rounded-bl-md px-5 py-3 shadow-lg border border-gray-100 dark:border-slate-700">
                 <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useAppContext } from '../context/AppContext'
 import { 
   FiShield, 
   FiAlertTriangle, 
@@ -13,6 +14,7 @@ import {
 } from 'react-icons/fi'
 
 const Dashboard = ({ userProfile, sessionId }) => {
+  const { userIntent } = useAppContext()
   const [complianceData, setComplianceData] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -129,12 +131,21 @@ const Dashboard = ({ userProfile, sessionId }) => {
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            MSME Compliance Navigator
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Welcome back, {userProfile?.businessOwnerName || 'Business Owner'}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                MSME Compliance Navigator
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Welcome back, {userProfile?.businessOwnerName || 'Business Owner'}
+              </p>
+            </div>
+            {userIntent && (
+              <div className="text-sm px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg">
+                Active Focus: {userIntent.replace('_', ' ')}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Stats Cards */}
