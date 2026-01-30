@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FiArrowLeft, FiEdit, FiSave, FiUser, FiBriefcase, FiMapPin, FiMail, FiPhone, FiHash, FiCalendar } from 'react-icons/fi'
+import { FiArrowLeft, FiEdit, FiSave, FiUser, FiBriefcase, FiMapPin, FiMail, FiPhone, FiHash, FiCalendar, FiMessageCircle, FiExternalLink } from 'react-icons/fi'
 
 const ProfilePage = ({ userProfile, onSave, onBack }) => {
   const [isEditing, setIsEditing] = useState(false)
@@ -270,6 +270,60 @@ const ProfilePage = ({ userProfile, onSave, onBack }) => {
                 <p className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
                   {formData?.mobileNumber || 'Not specified'}
                 </p>
+              )}
+            </div>
+
+            {/* 
+              WhatsApp Number Field
+              ----------------------
+              FUTURE INTEGRATIONS (DO NOT IMPLEMENT NOW):
+              - WhatsApp Business API chatbot for compliance reminders
+              - Automated deadline notifications via WhatsApp
+              - Google Calendar sync for compliance deadlines
+              - Google Tasks integration for pending compliances
+              
+              This field stores the user's WhatsApp number separately from mobile
+              to enable targeted WhatsApp-based compliance communication.
+            */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <FiMessageCircle size={16} className="text-green-500" />
+                WhatsApp Number
+              </label>
+              {isEditing ? (
+                <input
+                  type="tel"
+                  name="whatsappNumber"
+                  value={formData?.whatsappNumber || ''}
+                  onChange={handleInputChange}
+                  placeholder="+91 98765 43210"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <p className="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+                      {formData?.whatsappNumber || 'Not added yet'}
+                    </p>
+                    {/* WhatsApp Deep Link - Only show if number exists */}
+                    {formData?.whatsappNumber && (
+                      <a
+                        href={`https://wa.me/${formData.whatsappNumber.replace(/[\s\-\(\)]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-3 rounded-lg border border-green-300/60 bg-green-500/10 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-500/20 dark:hover:bg-green-900/50 flex items-center gap-2 text-sm font-medium transition-colors"
+                        title="Chat on WhatsApp"
+                      >
+                        <FiExternalLink size={16} />
+                        Chat
+                      </a>
+                    )}
+                  </div>
+                  {/* Helper text for MSME context */}
+                  <p className="text-xs text-gray-500 dark:text-gray-500 pl-1">
+                    This number will be used for MSME compliance reminders via WhatsApp.
+                  </p>
+                </div>
               )}
             </div>
 

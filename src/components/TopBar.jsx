@@ -1,10 +1,11 @@
-import { useState } from 'react' // Import useState
+import { useState, memo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiSun, FiMoon, FiLogIn, FiLogOut } from 'react-icons/fi'
-import { useGoogleLogin, googleLogout } from '@react-oauth/google' // Import googleLogout
+import { useGoogleLogin, googleLogout } from '@react-oauth/google'
 
-const TopBar = ({ isDark, onThemeToggle, googleUser, onLoginSuccess, onLogout }) => {
-  const [showDropdown, setShowDropdown] = useState(false) // State for dropdown visibility
+// Memoized TopBar to prevent re-renders when sibling routes change
+const TopBar = memo(({ isDark, onThemeToggle, googleUser, onLoginSuccess, onLogout }) => {
+  const [showDropdown, setShowDropdown] = useState(false)
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -24,11 +25,11 @@ const TopBar = ({ isDark, onThemeToggle, googleUser, onLoginSuccess, onLogout })
     onError: error => console.log('Login Failed:', error)
   });
 
-  const handleSignOut = () => {
-    googleLogout() // Clears the Google session
-    onLogout()     // Clears the App state
+  const handleSignOut = useCallback(() => {
+    googleLogout()
+    onLogout()
     setShowDropdown(false)
-  }
+  }, [onLogout])
 
   return (
     <div className={`h-16 px-6 flex items-center justify-between bg-white/90 backdrop-blur border-b border-gray-200 dark:bg-slate-950/80 dark:border-slate-800 relative z-50`}>
@@ -109,6 +110,6 @@ const TopBar = ({ isDark, onThemeToggle, googleUser, onLoginSuccess, onLogout })
       </div>
     </div>
   )
-}
+})
 
 export default TopBar

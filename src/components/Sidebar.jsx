@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { motion } from 'framer-motion'
 import { 
   FiHome, 
@@ -11,8 +11,8 @@ import {
 } from 'react-icons/fi'
 import { useChatContext } from '../context/ChatContext'
 
-// UPDATED: Accept activePage prop
-const Sidebar = ({ collapsed, onToggle, onViewProfile, googleUser, onNavigate, activePage }) => {
+// Memoized Sidebar to prevent re-renders when parent updates
+const Sidebar = memo(({ collapsed, onToggle, onViewProfile, googleUser, onNavigate, activePage }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const profileMenuRef = useRef(null)
 
@@ -64,12 +64,12 @@ const Sidebar = ({ collapsed, onToggle, onViewProfile, googleUser, onNavigate, a
 
   const groupedChats = groupChatsByTime()
 
-  const handleChatClick = (chatId) => {
+  const handleChatClick = useCallback((chatId) => {
     loadChat(chatId)
     if (onNavigate) {
-      onNavigate('home') // Navigate to home where chat will be displayed
+      onNavigate('home')
     }
-  }
+  }, [loadChat, onNavigate])
 
   // Close profile menu when clicking outside
   useEffect(() => {
@@ -228,6 +228,6 @@ const Sidebar = ({ collapsed, onToggle, onViewProfile, googleUser, onNavigate, a
       </div>
     </motion.div>
   )
-}
+})
 
 export default Sidebar

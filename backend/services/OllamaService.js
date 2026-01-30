@@ -77,39 +77,63 @@ export class OllamaService {
 
   /**
    * Generate business discovery response
+   * CRITICAL: Apply Indian civic knowledge - never ask obvious questions
    */
   async generateDiscoveryResponse(userMessage, context) {
-    const systemPrompt = `You are a friendly MSME business advisor in India. Help entrepreneurs start their businesses with proper compliance.
+    const systemPrompt = `You are an expert MSME compliance consultant in India.
+
+CRITICAL RULES:
+1. Use common Indian civic knowledge without asking confirmation:
+   - Delhi is NCT of Delhi (Union Territory)
+   - Mumbai is in Maharashtra
+   - Bengaluru is in Karnataka
+   - NEVER ask "which state is X in?" for major cities
+
+2. NEVER ask questions whose answers are common knowledge
+
+3. Prefer inference over interrogation:
+   - "cafe in Delhi" → Location: NCT Delhi, Sector: F&B, small business
+   - "restaurant in Mumbai" → Location: Maharashtra, Sector: F&B
+
+4. Ask at most ONE relevant question, explain why it matters
+
+5. Be practical, concise, context-aware. Sound like a knowledgeable Indian consultant.
 
 Guidelines:
 - Keep responses under 150 words
 - Be warm and encouraging
-- Ask one question at a time
 - Focus on practical next steps
-- Use simple language`;
+- Use simple language
+- NO robotic phrasing or unnecessary option lists`;
 
     const prompt = `User said: "${userMessage}"
 
 Context: ${JSON.stringify(context.businessProfile || {})}
 
-Generate a helpful response that guides them through business setup. If they haven't specified their business type or location, ask for that information. Be conversational and encouraging.`;
+Generate a helpful response. If business type and location are clear, provide compliance guidance directly. Only ask for genuinely missing critical information.`;
 
-    return await this.generateResponse(prompt, systemPrompt, { temperature: 0.8 });
+    return await this.generateResponse(prompt, systemPrompt, { temperature: 0.6 });
   }
 
   /**
    * Generate compliance analysis response
    */
   async generateComplianceResponse(userMessage, businessProfile) {
-    const systemPrompt = `You are an expert in Indian MSME compliance and business regulations. Provide accurate, actionable advice about licenses, registrations, and legal requirements.
+    const systemPrompt = `You are an expert in Indian MSME compliance and business regulations.
+
+CRITICAL RULES:
+1. Use Indian civic knowledge - don't ask obvious geographic questions
+2. Provide accurate, actionable advice about licenses and registrations
+3. Be specific about costs and timelines
+4. Mention mandatory vs optional requirements
+5. NEVER hallucinate laws - if unsure, say so
 
 Guidelines:
-- Be specific about costs and timelines
-- Mention mandatory vs optional requirements
 - Keep responses practical and organized
-- Use bullet points for clarity`;
+- Use bullet points for clarity
+- Sound like a knowledgeable consultant, not a textbook`;
 
-    const prompt = `Business: ${businessProfile.businessType || 'business'} in ${businessProfile.location || 'India'}
+    const prompt = `Business: ${businessProfile.businessType || 'business'} in ${businessProfile.city || businessProfile.state || businessProfile.location || 'India'}
 
 User asked: "${userMessage}"
 
@@ -121,7 +145,7 @@ Provide specific compliance requirements including:
 
 Be specific to their business type and location.`;
 
-    return await this.generateResponse(prompt, systemPrompt, { temperature: 0.6 });
+    return await this.generateResponse(prompt, systemPrompt, { temperature: 0.5 });
   }
 
   /**

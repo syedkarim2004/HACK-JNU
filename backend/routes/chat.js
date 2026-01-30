@@ -22,19 +22,20 @@ router.post('/message', async (req, res) => {
     // Generate IDs if not provided
     const finalSessionId = sessionId || uuidv4();
     const finalChatId = chatId || uuidv4();
+    const userId = userProfile?.userId || finalSessionId; // Use sessionId as userId fallback
     
     logger.info(`Processing chat message - Session: ${finalSessionId}, Chat: ${finalChatId}, Intent: ${userIntent || 'none'}`);
 
     // MEMORY FLOW STEP 1: Store user message in conversation memory
-    chatMemoryStore.addMessage(finalChatId, 'user', message, {
+    chatMemoryStore.addMessage(userId, finalChatId, 'user', message, {
       userIntent,
       sessionId: finalSessionId,
       userProfile: userProfile?.businessOwnerName
     });
 
     // MEMORY FLOW STEP 2: Get conversation context for AI
-    const conversationHistory = chatMemoryStore.getContextMessages(finalChatId);
-    const conversationContext = chatMemoryStore.getConversationContextString(finalChatId);
+    const conversationHistory = chatMemoryStore.getContextMessages(userId, finalChatId);
+    const conversationContext = chatMemoryStore.getConversationContextString(userId, finalChatId);
     
     logger.info(`Chat context retrieved: ${conversationHistory.length} previous messages`);
 
@@ -47,7 +48,7 @@ router.post('/message', async (req, res) => {
     });
 
     // MEMORY FLOW STEP 4: Store assistant response in memory
-    chatMemoryStore.addMessage(finalChatId, 'assistant', response.message, {
+    chatMemoryStore.addMessage(userId, finalChatId, 'assistant', response.message, {
       userIntent,
       responseType: response.type,
       data: response.data
@@ -61,7 +62,7 @@ router.post('/message', async (req, res) => {
       sessionId: finalSessionId,
       chatId: finalChatId,
       timestamp: new Date().toISOString(),
-      conversationLength: chatMemoryStore.getChatInfo(finalChatId)?.messageCount || 0
+      conversationLength: chatMemoryStore.getChatInfo(userId, finalChatId)?.messageCount || 0
     });
 
   } catch (error) {

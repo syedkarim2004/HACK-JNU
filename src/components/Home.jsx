@@ -1,6 +1,8 @@
+import { memo } from 'react'
 import MainContent from './MainContent'
 
-const Home = ({ sidebarCollapsed, userProfile, onSessionUpdate }) => {
+// Memoized Home - prevents re-mount on navigation
+const Home = memo(({ sidebarCollapsed, userProfile, onSessionUpdate }) => {
   return (
     <MainContent 
       sidebarCollapsed={sidebarCollapsed} 
@@ -8,6 +10,6 @@ const Home = ({ sidebarCollapsed, userProfile, onSessionUpdate }) => {
       onSessionUpdate={onSessionUpdate}
     />
   )
-}
+})
 
 export default Home

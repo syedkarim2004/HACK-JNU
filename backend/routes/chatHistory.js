@@ -155,17 +155,23 @@ router.post('/chat', async (req, res) => {
     chatHistoryStore.addMessage(userId, finalChatId, 'assistant', response.message, {
       userIntent,
       responseType: response.type,
-      data: response.data
+      data: response.data,
+      dashboardStateUpdate: response.dashboardStateUpdate || null
     });
 
     // STEP 5: Return response with updated chat info
     const updatedChat = chatHistoryStore.getChat(userId, finalChatId);
 
+    // STATE-EMITTING COPILOT FORMAT
     res.json({
       success: true,
+      
+      // CHAT_RESPONSE section
       message: response.message,
       type: response.type,
       data: response.data,
+      
+      // Chat info
       chatId: finalChatId,
       userId,
       chat: {
@@ -174,7 +180,13 @@ router.post('/chat', async (req, res) => {
         messageCount: updatedChat.messageCount,
         updatedAt: updatedChat.updatedAt
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      
+      // DASHBOARD_STATE_UPDATE section - ALWAYS present when dashboard update requested
+      dashboardUpdateRequested: response.dashboardUpdateRequested || false,
+      dashboardStateUpdate: response.dashboardStateUpdate !== undefined 
+        ? response.dashboardStateUpdate 
+        : null
     });
 
   } catch (error) {
@@ -267,4 +279,4 @@ router.get('/chat-stats', async (req, res) => {
   }
 });
 
-export default router;
+export default router; 
